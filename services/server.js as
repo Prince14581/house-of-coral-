@@ -1,0 +1,23 @@
+/house-of-coral
+├── /config
+│   └── database.js       # Separate connections for Pillar DB & Ghost Vault
+├── /controllers
+│   ├── authController.js
+│   └── pillarController.js
+├── /middleware
+│   └── auth.js           # The Gatekeeper (KYC/Auth)
+├── /models
+│   ├── User.js
+│   ├── Ledger.js         # Master Ledger
+│   └── PillarData.js
+├── /routes
+│   ├── auth.js
+│   └── pillars.js        # Routes for all 8 pillars
+├── /services
+│   ├── vaultGateway.js   # Secure P2P Treasury Bridge
+│   ├── transactionDispatcher.js # 10% Fee Logic
+│   └── reconciliationService.js # "Kill Switch"
+├── .env                  # Keep this local & out of Git
+├── .gitignore            # Include .env here
+├── server.js             # The entry point
+└── package.json
