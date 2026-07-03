@@ -1,4 +1,5 @@
- require('dotenv').config();
+
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -14,6 +15,7 @@ const Message = require('./models/Message');
 const bazaarRoutes = require('./routes/bazaar');
 const rhythmRoutes = require('./routes/rhythm');
 const chatRoutes = require('./routes/chat');
+const terraHouseRoutes = require('./routes/terraHouseRoutes'); // Added
 const adminDashboard = require('./modules/adminDashboard');
 
 const app = express();
@@ -24,7 +26,9 @@ const io = new Server(server, { cors: { origin: "*" } });
 app.use(express.json());
 app.use(cors());
 
-// Global Treasury Enforcement (POST requests only)
+// Global Treasury Enforcement
+// Note: This applies to all POST requests. Ensure your treasury middleware 
+// calls next() if the route shouldn't be charged.
 app.use((req, res, next) => {
     if (req.method === 'POST') {
         calculateTreasuryFee(req, res, next);
@@ -51,9 +55,10 @@ connectDB();
 app.use('/api/bazaar', verifyUser, bazaarRoutes);
 app.use('/api/rhythm', rhythmRoutes);
 app.use('/api/chat', verifyUser, chatRoutes);
-app.use('/admin', adminDashboard); // Admin Dashboard Pillar
+app.use('/api/terrahouse', terraHouseRoutes); // Mount TerraHouse
+app.use('/admin', adminDashboard); 
 
-// --- Socket.io Connection Logic (Global Link Pillar) ---
+// --- Socket.io Connection Logic ---
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
