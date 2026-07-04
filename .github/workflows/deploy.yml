@@ -1,0 +1,19 @@
+name: House-of-Coral Pipeline
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: npm install
+      - name: Security Scan (npm audit)
+        run: npm audit
+      - name: Run Audit Scripts
+        run: node scripts/ReconcileTreasury.js --dry-run
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t house-of-coral:latest .
+          # Push to your Container Registry (e.g., ECR, DockerHub)
