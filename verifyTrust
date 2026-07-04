@@ -1,0 +1,37 @@
+// src/middleware/AccessGuard.js
+const PermissionManager = require('../modules/Identity/roles/PermissionManager');
+const Identity = require('../modules/Identity/IdentityModel');
+
+/**
+ * @param {string} action - The key from PermissionManager.permissions
+ */
+const accessGuard = (action) => {
+    return async (req, res, next) => {
+        try {
+            // Fetch the full identity context (roles, trustScore, etc.)
+            const identity = await Identity.findOne({ userId: req.user.id });
+
+            if (!identity) {
+                return res.status(401).json({ error: 'Identity not found' });
+            }
+
+            // Check against our permission matrix
+            const isAuthorized = PermissionManager.canPerformAction(identity, action);
+
+            if (!isAuthorized) {
+                return res.status(403).json({ 
+                    error: 'Forbidden', 
+                    message: `Action '${action}' requires higher trust or appropriate role.` 
+                });
+            }
+
+            // Inject context for downstream use
+            req.identity = identity;
+            next();
+        } catch (error) {
+            res.status(500).json({ error: 'Access Control System Error' });
+        }
+    };
+};
+
+module.exports = accessGuard;
