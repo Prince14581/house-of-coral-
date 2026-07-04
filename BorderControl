@@ -1,0 +1,11 @@
+const express = require('express');
+const app = express();
+const BorderControl = require('./src/shared/middleware/border-control');
+
+// All 8 Pillars must pass the Border Control
+app.use('/api/modules', BorderControl.authorize);
+
+// Now load your pillars
+app.use('/api/modules/bazaar', bazaarRoutes);
+app.use('/api/modules/stage', stageRoutes);
+// ... etc
