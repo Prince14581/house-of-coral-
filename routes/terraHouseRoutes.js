@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middleware/auth');
-const { listProperty, searchNearby } = require('../controllers/terraHouseController');
+const terraHouseController = require('../controllers/terraHouseController');
+const { verifyUser } = require('../middleware/auth');
 
-// Route to list a new property (Protected)
-router.post('/list', verifyToken, listProperty);
-
-// Route to search for properties near a location (Public/Protected)
-// Example usage: /api/terrahouse/search?lng=3.5&lat=6.4&maxDistance=5000
-router.get('/search', searchNearby);
+// TerraHouse Real Estate Routes
+router.post('/list', verifyUser, terraHouseController.listProperty);
+router.get('/properties', terraHouseController.getAllProperties);
+router.get('/search', terraHouseController.searchNearby);
+router.get('/properties/:id', terraHouseController.getProperty);
+router.post('/purchase', verifyUser, terraHouseController.purchaseProperty);
+router.get('/my-properties', verifyUser, terraHouseController.getMyProperties);
 
 module.exports = router;

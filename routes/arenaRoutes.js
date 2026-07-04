@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const arenaController = require('../controllers/arenaController');
 const { verifyUser } = require('../middleware/auth');
-const { placeBet } = require('../controllers/arenaController');
 
-// POST /api/arena/place-bet
-router.post('/place-bet', verifyUser, placeBet);
+// Arena Wager Routes
+router.post('/bet', verifyUser, arenaController.placeBet);
+router.post('/settle', verifyUser, arenaController.settleBet);
+router.get('/wagers/:userId', verifyUser, arenaController.getWagers);
+router.get('/leaderboard', arenaController.getLeaderboard);
 
 module.exports = router;
