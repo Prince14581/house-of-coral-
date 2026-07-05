@@ -1,83 +1,86 @@
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const http = require('http');
 const { Server } = require('socket.io');
-
-// Import Middleware, Models, and Modules
-const { calculateTreasuryFee } = require('./middleware/treasury');
-const { verifyUser } = require('./middleware/auth');
-const Message = require('./models/Message');
+const morgan = require('morgan');
+const compression = require('compression');
+const jwt = require('jsonwebtoken');
 
 // Pillar Modules
 const bazaarRoutes = require('./routes/bazaar');
-const rhythmRoutes = require('./routes/rhythm');
-const chatRoutes = require('./routes/chat');
-const terraHouseRoutes = require('./routes/terraHouseRoutes'); // Added
-const adminDashboard = require('./modules/adminDashboard');
+const orderRoutes = require('./routes/orders'); // Separate order route
+const { calculateTreasuryFee } = require('./middleware/treasury');
+const { verifyUser } = require('./middleware/auth');
+
+if (process.env.NODE_ENV === 'production' && !process.env.ALLOWED_ORIGIN) {
+    throw new Error('FATAL ERROR: ALLOWED_ORIGIN must be set in production.');
+}
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
 
-// --- Global Middleware ---
-app.use(express.json());
-app.use(cors());
+app.set('trust proxy', 1);
+server.requestTimeout = 30000;
 
-// Global Treasury Enforcement
-// Note: This applies to all POST requests. Ensure your treasury middleware 
-// calls next() if the route shouldn't be charged.
-app.use((req, res, next) => {
-    if (req.method === 'POST') {
-        calculateTreasuryFee(req, res, next);
-    } else {
-        next();
-    }
+const allowedOrigin = process.env.NODE_ENV === 'production' ? process.env.ALLOWED_ORIGIN : '*';
+
+const io = new Server(server, { 
+    transports: ['websocket'],
+    cors: { origin: allowedOrigin, methods: ["GET", "POST"] } 
 });
 
-// --- Database Connection ---
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            serverSelectionTimeoutMS: 5000 
-        });
-        console.log("Successfully connected to MongoDB Atlas");
-    } catch (err) {
-        console.error("Database connection error:", err.message);
-        process.exit(1); 
-    }
-};
-connectDB();
+// Middleware
+app.use(helmet());
+app.use(compression());
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(cors({ origin: allowedOrigin }));
+app.use(express.json({ limit: '10mb' }));
 
-// --- Route Registry ---
+app.get('/api/health', (req, res) => res.status(200).json({ success: true, status: 'OK' }));
+
+// Dedicated Routing (Fixed duplication)
+app.use('/api/bazaar/orders', verifyUser, calculateTreasuryFee, orderRoutes);
 app.use('/api/bazaar', verifyUser, bazaarRoutes);
-app.use('/api/rhythm', rhythmRoutes);
-app.use('/api/chat', verifyUser, chatRoutes);
-app.use('/api/terrahouse', terraHouseRoutes); // Mount TerraHouse
-app.use('/admin', adminDashboard); 
 
-// --- Socket.io Connection Logic ---
-io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
-
-    socket.on('send_message', async (data) => {
-        try {
-            const { senderId, receiverId, text } = data;
-            const newMessage = new Message({ senderId, receiverId, text });
-            await newMessage.save();
-            io.emit('receive_message', data);
-        } catch (err) {
-            console.error("Chat Error:", err.message);
-        }
+// Socket.IO Auth
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) return next(new Error("Unauthorized"));
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return next(new Error("Invalid Token"));
+        socket.user = decoded;
+        next();
     });
-
-    socket.on('disconnect', () => console.log('User disconnected'));
 });
 
-// --- Root & Port ---
-app.get('/', (req, res) => res.send('House-of-Coral Ecosystem API is active.'));
+// Startup & Shutdown
+const connectDB = async () => {
+    mongoose.connection.on('connected', () => console.log('MongoDB connected'));
+    mongoose.connection.on('error', (err) => console.error('MongoDB error:', err));
+    await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000, maxPoolSize: 10 });
+};
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`House-of-Coral Ecosystem running on port ${PORT}`));
+async function startServer() {
+    await connectDB();
+    const PORT = process.env.PORT || 8000;
+    server.listen(PORT, () => console.log(`🚀 House-of-Coral running on ${PORT}`));
+}
+
+const shutdown = async () => {
+    io.close();
+    await mongoose.connection.close();
+    server.close(() => process.exit(0));
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+
+startServer().catch((err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+});
