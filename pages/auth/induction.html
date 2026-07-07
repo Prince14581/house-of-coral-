@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Induction | House-of-Coral</title>
+    
+    <meta name="description" content="Complete your House-of-Coral profile setup.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="google" content="notranslate">
+    <meta name="theme-color" content="#0d1117">
+    <!-- Production-hardened CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self' https://api.houseofcoral.com;">
+    
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body class="auth-layout">
+
+    <noscript>
+        <p class="noscript-warning">JavaScript is required to complete your induction.</p>
+    </noscript>
+
+    <div id="loadingOverlay" hidden role="status" aria-live="polite" aria-atomic="true">
+        <div class="loading-spinner"></div>
+        <p>Saving your preferences...</p>
+    </div>
+
+    <main id="inductionPage" class="auth-container">
+        <header>
+            <img src="../../assets/logos/logo.svg" alt="House-of-Coral Logo" class="auth-logo">
+            <h1>Welcome to the Hive</h1>
+            <div class="progress" role="progressbar" aria-label="Onboarding progress, step 3 of 3" 
+                 aria-valuemin="1" aria-valuemax="3" aria-valuenow="3">Step 3 of 3</div>
+            <p>Complete your setup to personalize your House-of-Coral experience.</p>
+        </header>
+
+        <div id="authMessage" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+        <form id="inductionForm" enctype="multipart/form-data" novalidate>
+            <input type="hidden" name="_csrf" id="csrfToken">
+            <input type="hidden" id="videoToken" name="videoToken">
+
+            <div class="form-group">
+                <label for="username">Public Username</label>
+                <input type="text" id="username" name="username" required minlength="3" maxlength="30" 
+                       pattern="^[A-Za-z0-9_-]{3,30}$" autocomplete="username" aria-required="true" 
+                       aria-describedby="usernameHint authMessage">
+                <p id="usernameHint" class="hint">3–30 characters. Letters, numbers, underscores, and hyphens only.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="profilePhoto">Profile Photo</label>
+                <input type="file" id="profilePhoto" name="profilePhoto" accept="image/png,image/jpeg,image/webp" 
+                       capture="user" aria-describedby="photoHint">
+                <p id="photoHint" class="hint">PNG, JPG, or WebP. Maximum 5 MB.</p>
+            </div>
+
+            <div class="form-group" id="videoInductionContainer">
+                <label for="recordVideoBtn">10-Second Identity Signature</label>
+                <div id="videoPreviewArea" class="video-placeholder" role="status" aria-live="polite" aria-describedby="videoHint">
+                    <p>Camera access required for identity verification.</p>
+                </div>
+                <p id="videoHint" class="hint">Record a front-facing video of up to 10 seconds.</p>
+                <button type="button" id="recordVideoBtn" aria-controls="videoPreviewArea">Record Signature</button>
+            </div>
+
+            <div class="form-group">
+                <label for="interest">Primary Interest</label>
+                <select id="interest" name="interest" required aria-required="true" aria-describedby="authMessage">
+                    <option value="" disabled selected>Select an area of interest</option>
+                    <option value="bazaar">Bazaar (Marketplace)</option>
+                    <option value="stage">The Stage (Streaming)</option>
+                    <option value="rhythm-hub">Rhythm Hub</option>
+                    <option value="global-link">Global Link</option>
+                    <option value="heart">Heart</option>
+                    <option value="arena">Arena (Gaming)</option>
+                    <option value="academy">Academy</option>
+                    <option value="infrastructure">Infrastructure</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Short Bio (Optional)</label>
+                <textarea id="bio" name="bio" rows="3" maxlength="200" 
+                          placeholder="Tell us what you're here for..." 
+                          aria-describedby="bioHint"></textarea>
+                <p id="bioHint" class="hint">Maximum 200 characters.</p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="submitBtn">
+                    <span class="btn-text">Complete Setup</span>
+                    <span class="spinner" hidden></span>
+                </button>
+            </div>
+        </form>
+
+        <footer class="auth-footer">
+            <button type="button" id="skipBtn" class="link-btn">Skip for now</button>
+            <nav aria-label="Authentication links">
+                <a href="../legal/terms.html">Terms</a> | 
+                <a href="../legal/privacy.html">Privacy</a> | 
+                <a href="../support/support.html">Support</a>
+            </nav>
+            <p class="copyright">&copy; 2026 House-of-Coral</p>
+        </footer>
+    </main>
+
+    <script src="../../js/auth.js" defer></script>
+</body>
+</html>
