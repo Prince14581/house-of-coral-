@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | House-of-Coral</title>
+    
+    <meta name="description" content="Manage your House-of-Coral profile, settings, and social links.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#0d1117">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.houseofcoral.com;">
+    
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body class="profile-layout">
+    <a href="#profilePage" class="skip-link">Skip to main content</a>
+
+    <div id="loadingOverlay" hidden role="status" aria-live="polite" aria-atomic="true">
+        <div class="loading-spinner"></div>
+        <p>Loading profile data...</p>
+    </div>
+
+    <header class="top-nav">
+        <img src="../../assets/logos/logo.svg" alt="House-of-Coral Logo" class="nav-logo">
+        <nav aria-label="Main navigation">
+            <a href="../dashboard/index.html">Dashboard</a>
+            <button id="logoutBtn" class="link-btn" type="button">Sign Out</button>
+        </nav>
+    </header>
+
+    <main id="profilePage" aria-labelledby="profileHeading">
+        <div id="profileMessage" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+        <section id="profileCover">
+            <img id="coverPhoto" src="../../assets/images/default-cover.jpg" alt="Profile banner">
+            <button id="changeCoverBtn" type="button">Change Cover</button>
+        </section>
+
+        <header class="profile-header">
+            <h1 id="profileHeading" class="visually-hidden">User Profile</h1>
+            <div id="identityCard">
+                <div class="avatar-container">
+                    <img id="userAvatar" src="../../assets/icons/default-avatar.svg" alt="Profile Picture">
+                    <button id="changeAvatarBtn" type="button">Change</button>
+                </div>
+                <div class="user-info">
+                    <h2 id="displayName">Loading...</h2>
+                    <p id="username">@username</p>
+                    <div id="verificationIndicators">
+                        <span class="badge">Email Verified</span>
+                        <span class="badge">Phone Verified</span>
+                        <span class="badge">Identity/KYC Verified</span>
+                    </div>
+                </div>
+                <div id="profileCompletion">
+                    <p>85% Complete</p>
+                    <progress value="85" max="100">85%</progress>
+                </div>
+            </div>
+        </header>
+
+        <section id="profileStats" aria-label="Platform statistics">
+            <article><h3>Followers</h3><p id="followerCount">0</p></article>
+            <article><h3>Arena Wins</h3><p id="arenaWins">0</p></article>
+            <article><h3>Courses</h3><p id="courseCount">0</p></article>
+            <article><h3>Listings</h3><p id="listingCount">0</p></article>
+        </section>
+
+        <section id="profileSettings" aria-label="Account settings">
+            <nav class="settings-tabs" aria-label="Settings navigation">
+                <button type="button" id="accountTabBtn" class="active" data-tab="account" aria-selected="true" aria-controls="accountTab">Account</button>
+                <button type="button" id="securityTabBtn" data-tab="security" aria-selected="false" aria-controls="securityTab">Security</button>
+                <button type="button" id="privacyTabBtn" data-tab="privacy" aria-selected="false" aria-controls="privacyTab">Privacy</button>
+            </nav>
+
+            <div id="accountTab" class="tab-content" role="tabpanel" aria-labelledby="accountTabBtn">
+                <form id="profileForm">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="email" readonly>
+                    
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" maxlength="200"></textarea>
+                    
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" autocomplete="tel">
+                    
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" autocomplete="address-level2">
+                    
+                    <label for="website">Website</label>
+                    <input type="url" id="website" name="website" autocomplete="url">
+                    
+                    <label for="github">GitHub</label>
+                    <input type="url" id="github" name="github">
+                    
+                    <label for="linkedin">LinkedIn</label>
+                    <input type="url" id="linkedin" name="linkedin">
+                    
+                    <label for="twitter">X (Twitter)</label>
+                    <input type="url" id="twitter" name="twitter">
+                    
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+
+            <div id="securityTab" class="tab-content" hidden role="tabpanel" aria-labelledby="securityTabBtn">
+                <h3>Security & Linked Accounts</h3>
+                <button type="button">Change Password</button>
+                <button type="button">Manage Trusted Devices</button>
+                <div id="connectedAccounts">
+                    <p>Connected Providers: Google, Apple</p>
+                </div>
+            </div>
+
+            <div id="privacyTab" class="tab-content" hidden role="tabpanel" aria-labelledby="privacyTabBtn">
+                <h3>Notifications</h3>
+                <label><input type="checkbox" name="notif_email"> Email Notifications</label>
+                <label><input type="checkbox" name="notif_push"> Push Notifications</label>
+                <label><input type="checkbox" name="notif_sms"> SMS Notifications</label>
+                <h3>Account Management</h3>
+                <button type="button" class="danger">Download Data</button>
+                <button type="button" class="danger">Delete Account</button>
+            </div>
+        </section>
+
+        <section id="achievements" aria-labelledby="achievementsTitle">
+            <h2 id="achievementsTitle">Achievements & Badges</h2>
+            <div class="badge-grid">
+                <div class="badge">Creator</div>
+                <div class="badge">Arena Champion</div>
+            </div>
+        </section>
+
+        <section id="recentActivity" aria-labelledby="activityTitle">
+            <h2 id="activityTitle">Recent Activity</h2>
+            <div id="activityFeed"><p class="empty-state">No recent activity.</p></div>
+        </section>
+    </main>
+
+    <footer class="profile-footer">
+        <nav aria-label="Infrastructure links">
+            <a href="../legal/terms.html">Terms</a> | 
+            <a href="../legal/privacy.html">Privacy</a> | 
+            <a href="../legal/security-policy.html">Security Policy</a> | 
+            <a href="../support/support.html">Support</a> |
+            <a href="../support/contact.html">Contact Us</a>
+        </nav>
+    </footer>
+
+    <script src="profile.js" defer></script>
+</body>
+</html>
