@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet | House-of-Coral</title>
+    
+    <meta name="description" content="Manage your House-of-Coral assets, coins, and transactions.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#0d1117">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self' https://api.houseofcoral.com;">
+    
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="wallet.css">
+</head>
+<body class="wallet-layout">
+    <a href="#walletPage" class="skip-link">Skip to main content</a>
+    
+    <div id="loadingOverlay" hidden role="status" aria-live="polite" aria-atomic="true">
+        <div class="loading-spinner"></div>
+        <p>Loading financial data...</p>
+    </div>
+
+    <!-- Reusable Modal for Financial Operations -->
+    <div id="modalOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div id="modalContent">
+            <h2 id="modalTitle" class="visually-hidden">Transaction Form</h2>
+            <button id="closeModal" aria-label="Close modal">×</button>
+            <div id="activeForm"></div>
+        </div>
+    </div>
+
+    <header class="top-nav">
+        <img src="../../assets/logos/logo.svg" alt="House-of-Coral Logo" class="nav-logo">
+        <nav aria-label="Main navigation">
+            <a href="../dashboard/index.html">Dashboard</a>
+            <button id="logoutBtn" class="link-btn">Sign Out</button>
+        </nav>
+    </header>
+
+    <main id="walletPage" aria-labelledby="walletHeading">
+        <div id="walletMessage" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+        <header class="wallet-header">
+            <h1 id="walletHeading">Your Wallet</h1>
+        </header>
+
+        <section id="userWalletProfile" aria-label="Account details">
+            <img id="userAvatar" src="../../assets/icons/default-avatar.svg" alt="Profile">
+            <h2 id="userName">Loading...</h2>
+            <p id="walletId">Wallet ID: Loading...</p>
+            <div class="address-container">
+                <span id="walletAddress">0x...</span>
+                <button id="copyWalletAddress" aria-label="Copy wallet address">Copy</button>
+            </div>
+        </section>
+
+        <section id="walletStats" aria-label="Financial summary">
+            <article><h2>Balance</h2><p id="totalBalance">$0.00</p></article>
+            <article><h2>Coral Coin</h2><p id="coralCoinBalance">0.00 CC</p></article>
+            <article><h2>Monthly Profit</h2><p id="monthlyProfit">$0.00</p></article>
+            <article><h2>Total Deposits</h2><p id="totalDeposits">$0.00</p></article>
+            <article><h2>Total Withdrawals</h2><p id="totalWithdrawals">$0.00</p></article>
+        </section>
+
+        <section id="walletActions" aria-label="Wallet operations">
+            <button id="depositBtn">Deposit</button>
+            <button id="withdrawBtn">Withdraw</button>
+            <button id="sendBtn">Send</button>
+            <button id="receiveBtn">Receive</button>
+            <button id="qrCodeBtn">Show My QR</button>
+        </section>
+
+        <section id="walletQr" aria-label="Receive Payments">
+            <h2>Receive Payments</h2>
+            <canvas id="walletQrCode" aria-label="Your personal QR code"></canvas>
+        </section>
+
+        <section id="transactionHistory" aria-labelledby="historyTitle">
+            <h2 id="historyTitle">Recent Transactions</h2>
+            <label for="txSearch" class="visually-hidden">Search transactions</label>
+            <input type="search" id="txSearch" placeholder="Search transactions..." autocomplete="off">
+            
+            <label for="txFilter" class="visually-hidden">Filter transactions</label>
+            <select id="txFilter">
+                <option value="all">All</option>
+                <option value="deposits">Deposits</option>
+                <option value="withdrawals">Withdrawals</option>
+                <option value="transfers">Transfers</option>
+                <option value="rewards">Rewards</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="refunds">Refunds</option>
+            </select>
+            
+            <div id="transactionFeed">
+                <div class="empty-state">
+                    <p>No transactions found.</p>
+                    <button id="startDeposit">Make your first deposit</button>
+                </div>
+            </div>
+            <nav id="txPagination" aria-label="Transaction pagination"></nav>
+        </section>
+
+        <section id="notificationCenter">
+            <h2>Notifications</h2>
+            <ul id="notificationList"><li>No new alerts.</li></ul>
+        </section>
+
+        <section id="rewardsAndPayments">
+            <div id="rewardsSection">
+                <h2>Rewards & Bonuses</h2>
+                <p>Referral: <span id="refEarnings">$0.00</span> | Gift: <span id="giftEarnings">$0.00</span> | Bonus: <span id="bonusEarnings">$0.00</span></p>
+            </div>
+            <div id="paymentMethods">
+                <h2>Payment Methods</h2>
+                <button>Manage Banks/Cards/Mobile Money</button>
+            </div>
+            <div id="beneficiariesSection">
+                <h2>Saved Beneficiaries</h2>
+                <ul id="beneficiaryList"><li>No saved recipients.</li></ul>
+            </div>
+        </section>
+
+        <section id="securitySettings">
+            <h2>Security Status</h2>
+            <div class="status-card">
+                <p id="pinStatus">PIN: Enabled</p>
+                <p id="twoFaStatus">2FA: Enabled</p>
+                <p id="lastLogin">Last Login: Loading...</p>
+            </div>
+            <button>Manage Security & Trusted Devices</button>
+        </section>
+
+        <section id="supportSection">
+            <h2>Help & Support</h2>
+            <button>Contact Support</button>
+            <button>Report a Transaction</button>
+            <button>FAQs</button>
+        </section>
+
+        <section id="systemInfo">
+            <p><small>A 10% platform service fee is applied to all transactions and routed to the private treasury node.</small></p>
+            <p id="apiStatus">Treasury Node: <strong>Online</strong></p>
+        </section>
+    </main>
+
+    <footer class="wallet-footer">
+        <nav aria-label="Infrastructure links">
+            <a href="../legal/terms.html">Terms</a> | 
+            <a href="../legal/privacy.html">Privacy</a> | 
+            <a href="../support/support.html">Support</a> | 
+            <a href="../support/status.html">Status</a> |
+            <a href="../legal/security-policy.html">Security Policy</a> |
+            <a href="../support/guide.html">Wallet Guide</a>
+        </nav>
+    </footer>
+
+    <script src="wallet.js" defer></script>
+</body>
+</html>
