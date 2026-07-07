@@ -1,0 +1,129 @@
+name: House-of-Coral CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    services:
+      mongodb:
+        image: mongo:7
+        ports: [27017:27017]
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      PORT: 8000
+      JWT_SECRET: testing_secret_key
+      MONGODB_URI: mongodb://localhost:27017/testdb
+      ALLOWED_ORIGIN: http://localhost:3000
+      SESSION_SECRET: testing_session_secret
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Verify Required Files
+        run: |
+          test -f package.json
+          test -f package-lock.json
+          test -f server.js
+          test -f .env.example
+          test -f jest.config.js
+          test -f .prettierrc
+          test -f .prettierignore
+          test -f .eslintrc.json || test -f eslint.config.js
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Wait for MongoDB (Bounded Retry)
+        run: |
+          for i in {1..30}; do
+            if mongosh mongodb://localhost:27017/testdb --eval "db.adminCommand(\"ping\")" >/dev/null 2>&1; then
+              echo "MongoDB is ready."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MongoDB failed to start."
+          exit 1
+
+      - name: Smoke Test (Server Startup)
+        run: |
+          npm start > server.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+          
+          # Poll health endpoint: verify HTTP 200 AND JSON content
+          for i in {1..15}; do
+            if RESPONSE=$(curl --silent --fail http://localhost:8000/api/health); then
+              if echo "$RESPONSE" | grep -q '"status":"OK"'; then
+                echo "Server started and healthy"
+                kill $SERVER_PID
+                wait $SERVER_PID || true
+                exit 0
+              fi
+            fi
+            sleep 2
+          done
+          echo "Health check failed. Showing server.log:"
+          cat server.log
+          exit 1
+
+      - name: Verify Environment Variables
+        run: |
+          test -n "$JWT_SECRET"
+          test -n "$MONGODB_URI"
+          test -n "$PORT"
+          test -n "$ALLOWED_ORIGIN"
+          test -n "$SESSION_SECRET"
+
+      - name: Run Quality Gates
+        run: |
+          npm run lint --if-present
+          npm run format:check --if-present
+          npm audit --audit-level=critical || true
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-artifacts
+          path: |
+            coverage/
+            junit.xml
+            *.log
+            server.log
+            npm-debug.log*
+          if-no-files-found: ignore
