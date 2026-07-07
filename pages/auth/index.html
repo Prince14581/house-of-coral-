@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | House-of-Coral</title>
+    
+    <meta name="description" content="Your central House-of-Coral hub.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#0d1117">
+    <!-- Updated CSP: Extended img-src to support API/CDN image hosting -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://api.houseofcoral.com; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self' https://api.houseofcoral.com;">
+    
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-layout">
+    <a href="#dashboardPage" class="skip-link">Skip to main content</a>
+
+    <div id="loadingOverlay" hidden role="status" aria-live="polite" aria-atomic="true">
+        <div class="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+    </div>
+
+    <header class="top-nav">
+        <img src="../../assets/logos/logo.svg" alt="House-of-Coral Logo" class="nav-logo">
+        
+        <form id="searchForm" class="search-container" role="search">
+            <label class="visually-hidden" for="dashboardSearch">Search House-of-Coral</label>
+            <input id="dashboardSearch" type="search" placeholder="Search House-of-Coral..." autocomplete="off">
+        </form>
+
+        <div class="user-meta">
+            <span id="walletBalance" aria-label="Wallet balance">$0.00</span>
+            <button id="notificationBtn" aria-label="Notifications">🔔<span id="notifBadge" class="notification-badge" hidden aria-live="polite" aria-label="0 unread notifications">0</span></button>
+            <div id="userProfileSnippet">
+                <img id="userAvatar" src="../../assets/icons/default-avatar.svg" alt="User profile picture" loading="lazy" decoding="async">
+                <span id="displayName">Loading...</span>
+            </div>
+            <button id="logoutBtn" class="link-btn">Sign Out</button>
+        </div>
+    </header>
+
+    <aside id="notificationPanel" hidden aria-labelledby="notificationHeading">
+        <h2 id="notificationHeading">Notifications</h2>
+        <div id="notificationList"></div>
+    </aside>
+
+    <main id="dashboardPage" aria-labelledby="dashboardHeading">
+        <div id="dashboardMessage" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+        <header class="dashboard-header">
+            <h1 id="dashboardHeading">Welcome Back, <span id="userDisplayName">User</span></h1>
+            <div id="quickActions">
+                <button id="quickDepositBtn" type="button">Quick Deposit</button>
+                <button id="viewActivityBtn" type="button">View Activity</button>
+            </div>
+        </header>
+
+        <section id="dashboardStats" aria-label="Dashboard statistics">
+            <article><h2>Wallet</h2><p id="walletSummary">$0.00</p></article>
+            <article><h2>Messages</h2><p id="messageCount">0</p></article>
+            <article><h2>Followers</h2><p id="followersCount">0</p></article>
+        </section>
+
+        <section class="pillar-grid" aria-label="Platform Pillars">
+            <a href="../../pillars/bazaar/index.html" class="pillar-card"><h2>Bazaar</h2><p>Marketplace</p><span class="pillar-status" id="bazaarStatus">Loading…</span></a>
+            <a href="../../pillars/stage/index.html" class="pillar-card"><h2>The Stage</h2><p>Streaming</p><span class="pillar-status" id="stageStatus">Loading…</span></a>
+            <a href="../../pillars/rhythm-hub/index.html" class="pillar-card"><h2>Rhythm Hub</h2><p>Music & Comedy</p><span class="pillar-status" id="rhythmStatus">Loading…</span></a>
+            <a href="../../pillars/global-link/index.html" class="pillar-card"><h2>Global Link</h2><p>Social Chat</p><span class="pillar-status" id="globalStatus">Loading…</span></a>
+            <a href="../../pillars/heart/index.html" class="pillar-card"><h2>Heart</h2><p>Relationships</p><span class="pillar-status" id="heartStatus">Loading…</span></a>
+            <a href="../../pillars/arena/index.html" class="pillar-card"><h2>Arena</h2><p>Gaming</p><span class="pillar-status" id="arenaStatus">Loading…</span></a>
+            <a href="../../pillars/academy/index.html" class="pillar-card"><h2>Academy</h2><p>Learning</p><span class="pillar-status" id="academyStatus">Loading…</span></a>
+            <a href="../../pillars/infrastructure/index.html" class="pillar-card"><h2>Infrastructure</h2><p>Platform Services</p><span class="pillar-status" id="infraStatus">Loading…</span></a>
+        </section>
+
+        <section id="recentActivity" aria-labelledby="activityTitle">
+            <h2 id="activityTitle">Recent Activity</h2>
+            <div id="activityFeed"><p class="empty-state">No recent activity.</p></div>
+        </section>
+    </main>
+
+    <footer class="dashboard-footer">
+        <nav aria-label="Infrastructure links">
+            <a href="../legal/terms.html">Terms</a> | 
+            <a href="../legal/privacy.html">Privacy</a> | 
+            <a href="../support/support.html">Support</a> | 
+            <a href="../support/status.html">Status</a>
+        </nav>
+    </footer>
+
+    <script src="../../js/dashboard.js" defer></script>
+</body>
+</html>
