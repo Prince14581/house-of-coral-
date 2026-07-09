@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # Root Application - Handles Production & Dev Dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 15
+    rebase-strategy: "auto"
+    reviewers: ["Prince14581"]
+    assignees: ["Prince14581"]
+    labels: ["dependencies", "security"]
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "-"
+    # Separate grouping for cleaner PR reviews
+    groups:
+      production:
+        dependency-type: "production"
+        applies-to: "version-updates"
+      development:
+        dependency-type: "development"
+        applies-to: "version-updates"
+    # Isolate major breaking changes
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    vendor: false
+
+  # GitHub Actions - Scheduled to avoid overlap
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "main"
+    schedule:
+      interval: "daily"
+      time: "04:00"
+      timezone: "UTC"
+    reviewers: ["Prince14581"]
+    assignees: ["Prince14581"]
+    labels: ["github-actions", "security"]
+    rebase-strategy: "auto"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+      
