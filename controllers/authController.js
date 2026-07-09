@@ -34,11 +34,9 @@ exports.register = async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Registration failed.' });
     }
 };
-
 /**
  * Login: incorporates JTI, explicit algorithm, and standard claims.
- */
-exports.login = async (req, res) => {
+ */ exports.login = async (req, res) => {
     try {
         // Configuration safety check
         if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET not configured.');
@@ -85,3 +83,5 @@ exports.login = async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Login failed.' });
     }
 };
+
+Modules:Exports/router.post('/register', authController.register);router.post('/register', authController.register);
